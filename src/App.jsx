@@ -353,6 +353,15 @@ function App() {
     4: [],
   });
 
+  const handleLikeToggle = (chartId, preference) => {
+    setChartLikes((prev) => ({
+      ...prev,
+      [chartId]: prev[chartId].includes(preference)
+        ? prev[chartId].filter((p) => p !== preference)
+        : [...prev[chartId], preference],
+    }));
+  };
+
   const chartPreferences = {
     1: [
       "Clear monthly trend visualization",
@@ -382,15 +391,6 @@ function App() {
       "Color-coded status indicators",
       "Detailed gap analysis",
     ],
-  };
-
-  const handleLikeToggle = (chartId, preference) => {
-    setChartLikes((prev) => ({
-      ...prev,
-      [chartId]: prev[chartId].includes(preference)
-        ? prev[chartId].filter((p) => p !== preference)
-        : [...prev[chartId], preference],
-    }));
   };
 
   const PreferenceSelector = ({ chartId }) => (
@@ -899,9 +899,1317 @@ function App() {
     },
   ];
 
+  const getPythonCode = (chartId, likes) => {
+    const codeSnippets = {
+      1: {
+        "Clear monthly trend visualization": `# Create a line chart for coral cover trends
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Monthly coral cover data
+months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+coral_cover = [45, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33]
+
+plt.figure(figsize=(12, 6))
+plt.plot(months, coral_cover, 'o-', color='#4BC0C0', linewidth=2)
+plt.fill_between(months, coral_cover, alpha=0.2, color='#4BC0C0')
+plt.title('Coral Cover Trends')
+plt.ylabel('Coral Cover (%)')
+plt.grid(True, alpha=0.3)
+plt.show()`,
+        "Interactive zoom functionality": `# Add interactive zoom functionality
+import matplotlib.pyplot as plt
+from matplotlib.widgets import SpanSelector
+
+def onselect(xmin, xmax):
+    plt.xlim(xmin, xmax)
+    plt.draw()
+
+fig, ax = plt.subplots()
+ax.plot(months, coral_cover, 'o-', color='#4BC0C0')
+span = SpanSelector(ax, onselect, 'horizontal', useblit=True,
+                   props=dict(alpha=0.5, facecolor='#4BC0C0'))`,
+        "Detailed tooltips with coral cover data": `# Add interactive tooltips
+import plotly.graph_objects as go
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=months,
+    y=coral_cover,
+    mode='lines+markers',
+    hovertemplate='Month: %{x}<br>Coral Cover: %{y}%<extra></extra>',
+    line=dict(color='#4BC0C0', width=2),
+    marker=dict(size=8)
+))
+fig.update_layout(title='Coral Cover Trends with Tooltips')
+fig.show()`,
+        "Smooth line transitions": `# Create smooth line transitions
+import numpy as np
+from scipy.interpolate import make_interp_spline
+
+# Create smooth curve
+x_smooth = np.linspace(0, len(months)-1, 200)
+y_smooth = make_interp_spline(range(len(months)), coral_cover)(x_smooth)
+
+plt.figure(figsize=(12, 6))
+plt.plot(x_smooth, y_smooth, color='#4BC0C0', linewidth=2)
+plt.xticks(range(len(months)), months)
+plt.title('Smooth Coral Cover Trends')
+plt.show()`,
+      },
+      2: {
+        "Easy-to-read species distribution": `# Create a bar chart for species distribution
+import matplotlib.pyplot as plt
+
+species = ['Coral', 'Fish', 'Crustaceans', 'Mollusks', 'Echinoderms']
+counts = [120, 85, 65, 45, 30]
+colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+
+plt.figure(figsize=(10, 6))
+bars = plt.bar(species, counts, color=colors, alpha=0.6)
+plt.title('Marine Species Distribution')
+plt.ylabel('Species Count')
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height,
+             f'{int(height)}', ha='center', va='bottom')`,
+        "Interactive bar selection": `# Add interactive bar selection
+import plotly.graph_objects as go
+
+fig = go.Figure(data=[
+    go.Bar(
+        x=species,
+        y=counts,
+        marker_color=colors,
+        hovertemplate='Species: %{x}<br>Count: %{y}<extra></extra>'
+    )
+])
+fig.update_layout(title='Interactive Species Distribution')
+fig.show()`,
+        "Colorful species categorization": `# Create color-coded species categories
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=species, y=counts, palette='husl')
+plt.title('Color-Coded Species Categories')
+plt.xticks(rotation=45)
+plt.show()`,
+      },
+      3: {
+        "Temperature trend visualization": `# Create temperature trend visualization
+import matplotlib.pyplot as plt
+import numpy as np
+
+years = ['2018', '2019', '2020', '2021', '2022', '2023', '2024']
+temperatures = [24.5, 24.8, 25.2, 25.5, 25.9, 26.2, 26.5]
+
+plt.figure(figsize=(10, 6))
+plt.plot(years, temperatures, 'o-', color='#4BC0C0', linewidth=2)
+plt.fill_between(years, temperatures, alpha=0.2, color='#4BC0C0')
+plt.title('Ocean Temperature Trends')
+plt.ylabel('Temperature (°C)')
+plt.grid(True, alpha=0.3)`,
+        "Impact analysis in tooltips": `# Add impact analysis tooltips
+import plotly.graph_objects as go
+
+def get_impact(temp):
+    if temp > 26:
+        return 'High stress on coral reefs'
+    elif temp > 25.5:
+        return 'Moderate stress on marine life'
+    return 'Normal conditions'
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=years,
+    y=temperatures,
+    mode='lines+markers',
+    hovertemplate='Year: %{x}<br>Temperature: %{y}°C<br>Impact: ' + 
+                 [get_impact(t) for t in temperatures][0] + '<extra></extra>',
+    line=dict(color='#4BC0C0', width=2)
+))
+fig.update_layout(title='Temperature Impact Analysis')
+fig.show()`,
+      },
+      4: {
+        "Comparative current vs target view": `# Create radar chart for ecosystem health
+import plotly.graph_objects as go
+
+categories = ['Biodiversity', 'Water Quality', 'Habitat Health', 'Species Richness', 'Coral Cover']
+current = [75, 82, 68, 70, 65]
+target = [90, 90, 85, 85, 80]
+
+fig = go.Figure()
+fig.add_trace(go.Scatterpolar(
+    r=current,
+    theta=categories,
+    fill='toself',
+    name='Current Status'
+))
+fig.add_trace(go.Scatterpolar(
+    r=target,
+    theta=categories,
+    fill='toself',
+    name='Target Level'
+))
+fig.update_layout(
+    polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+    showlegend=True
+)`,
+        "Interactive segment selection": `# Add interactive segment selection
+import plotly.graph_objects as go
+
+fig = go.Figure()
+fig.add_trace(go.Scatterpolar(
+    r=current,
+    theta=categories,
+    fill='toself',
+    name='Current Status',
+    hovertemplate='Category: %{theta}<br>Current: %{r}%<br>Target: ' + 
+                 str(target[categories.index('%{theta}')]) + '%<extra></extra>'
+))
+fig.add_trace(go.Scatterpolar(
+    r=target,
+    theta=categories,
+    fill='toself',
+    name='Target Level'
+))
+fig.update_layout(
+    polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+    showlegend=True
+)`,
+      },
+    };
+
+    return likes.map((like) => codeSnippets[chartId][like]).join("\n\n");
+  };
+
+  const getRCode = (chartId, likes) => {
+    const codeSnippets = {
+      1: {
+        "Clear monthly trend visualization": `# Create a line chart for coral cover trends
+library(ggplot2)
+
+# Monthly coral cover data
+months <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+coral_cover <- c(45, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33)
+
+# Create data frame
+df <- data.frame(months = months, cover = coral_cover)
+
+# Create plot
+ggplot(df, aes(x = months, y = cover)) +
+  geom_line(color = "#4BC0C0", size = 1) +
+  geom_point(color = "#4BC0C0", size = 3) +
+  geom_area(fill = "#4BC0C0", alpha = 0.2) +
+  theme_minimal() +
+  labs(title = "Coral Cover Trends",
+       y = "Coral Cover (%)")`,
+        "Interactive zoom functionality": `# Add interactive zoom functionality
+library(plotly)
+
+# Create interactive plot
+plot_ly(df, x = ~months, y = ~cover, type = 'scatter', mode = 'lines+markers',
+        line = list(color = '#4BC0C0', width = 2),
+        marker = list(color = '#4BC0C0', size = 8)) %>%
+  layout(title = "Interactive Coral Cover Trends",
+         xaxis = list(title = "Month"),
+         yaxis = list(title = "Coral Cover (%)"))`,
+        "Detailed tooltips with coral cover data": `# Add detailed tooltips
+library(plotly)
+
+plot_ly(df, x = ~months, y = ~cover, type = 'scatter', mode = 'lines+markers',
+        line = list(color = '#4BC0C0', width = 2),
+        marker = list(color = '#4BC0C0', size = 8),
+        hovertemplate = paste(
+          "Month: %{x}<br>",
+          "Coral Cover: %{y}%<extra></extra>"
+        )) %>%
+  layout(title = "Coral Cover Trends with Tooltips")`,
+        "Smooth line transitions": `# Create smooth line transitions
+library(ggplot2)
+
+ggplot(df, aes(x = months, y = cover)) +
+  geom_smooth(method = "loess", color = "#4BC0C0", se = FALSE) +
+  geom_point(color = "#4BC0C0", size = 3) +
+  theme_minimal() +
+  labs(title = "Smooth Coral Cover Trends")`,
+      },
+      2: {
+        "Easy-to-read species distribution": `# Create a bar chart for species distribution
+library(ggplot2)
+
+# Species data
+species <- c('Coral', 'Fish', 'Crustaceans', 'Mollusks', 'Echinoderms')
+counts <- c(120, 85, 65, 45, 30)
+colors <- c('#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF')
+
+# Create data frame
+df <- data.frame(species = species, count = counts)
+
+# Create plot
+ggplot(df, aes(x = species, y = count, fill = species)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = colors) +
+  theme_minimal() +
+  labs(title = "Marine Species Distribution",
+       y = "Species Count")`,
+        "Interactive bar selection": `# Add interactive bar selection
+library(plotly)
+
+plot_ly(df, x = ~species, y = ~count, type = 'bar',
+        marker = list(color = colors),
+        hovertemplate = paste(
+          "Species: %{x}<br>",
+          "Count: %{y}<extra></extra>"
+        )) %>%
+  layout(title = "Interactive Species Distribution")`,
+        "Colorful species categorization": `# Create color-coded species categories
+library(ggplot2)
+
+ggplot(df, aes(x = species, y = count, fill = species)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal() +
+  labs(title = "Color-Coded Species Categories")`,
+      },
+      3: {
+        "Temperature trend visualization": `# Create temperature trend visualization
+library(ggplot2)
+
+# Temperature data
+years <- c('2018', '2019', '2020', '2021', '2022', '2023', '2024')
+temperatures <- c(24.5, 24.8, 25.2, 25.5, 25.9, 26.2, 26.5)
+
+# Create data frame
+df <- data.frame(year = years, temp = temperatures)
+
+# Create plot
+ggplot(df, aes(x = year, y = temp)) +
+  geom_line(color = "#4BC0C0", size = 1) +
+  geom_point(color = "#4BC0C0", size = 3) +
+  geom_area(fill = "#4BC0C0", alpha = 0.2) +
+  theme_minimal() +
+  labs(title = "Ocean Temperature Trends",
+       y = "Temperature (°C)")`,
+        "Impact analysis in tooltips": `# Add impact analysis tooltips
+library(plotly)
+
+# Function to determine impact
+get_impact <- function(temp) {
+  if (temp > 26) return("High stress on coral reefs")
+  else if (temp > 25.5) return("Moderate stress on marine life")
+  else return("Normal conditions")
+}
+
+plot_ly(df, x = ~year, y = ~temp, type = 'scatter', mode = 'lines+markers',
+        line = list(color = '#4BC0C0', width = 2),
+        marker = list(color = '#4BC0C0', size = 8),
+        hovertemplate = paste(
+          "Year: %{x}<br>",
+          "Temperature: %{y}°C<br>",
+          "Impact: ", sapply(df$temp, get_impact), "<extra></extra>"
+        )) %>%
+  layout(title = "Temperature Impact Analysis")`,
+      },
+      4: {
+        "Comparative current vs target view": `# Create radar chart for ecosystem health
+library(fmsb)
+
+# Ecosystem health data
+categories <- c('Biodiversity', 'Water Quality', 'Habitat Health', 'Species Richness', 'Coral Cover')
+current <- c(75, 82, 68, 70, 65)
+target <- c(90, 90, 85, 85, 80)
+
+# Create data frame
+df <- data.frame(
+  Category = categories,
+  Current = current,
+  Target = target
+)
+
+# Create radar chart
+radarchart(df[,2:3], 
+           axistype = 1,
+           pcol = c("#FF6384", "#36A2EB"),
+           pfcol = c(scales::alpha("#FF6384", 0.2), scales::alpha("#36A2EB", 0.2)),
+           plwd = 2,
+           title = "Ecosystem Health Metrics")`,
+        "Interactive segment selection": `# Add interactive segment selection
+library(plotly)
+
+plot_ly(type = 'scatterpolar',
+        r = current,
+        theta = categories,
+        fill = 'toself',
+        name = 'Current Status') %>%
+  add_trace(r = target,
+            theta = categories,
+            fill = 'toself',
+            name = 'Target Level') %>%
+  layout(
+    polar = list(
+      radialaxis = list(
+        visible = TRUE,
+        range = c(0, 100)
+      )
+    ),
+    showlegend=TRUE
+  )`,
+      },
+    };
+
+    return likes.map((like) => codeSnippets[chartId][like]).join("\n\n");
+  };
+
+  const getVegaLiteCode = (chartId, likes) => {
+    const codeSnippets = {
+      1: {
+        "Clear monthly trend visualization": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"month": "Jan", "cover": 45},
+      {"month": "Feb", "cover": 43},
+      {"month": "Mar", "cover": 42},
+      {"month": "Apr", "cover": 41},
+      {"month": "May", "cover": 40},
+      {"month": "Jun", "cover": 39},
+      {"month": "Jul", "cover": 38},
+      {"month": "Aug", "cover": 37},
+      {"month": "Sep", "cover": 36},
+      {"month": "Oct", "cover": 35},
+      {"month": "Nov", "cover": 34},
+      {"month": "Dec", "cover": 33}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": true,
+    "interpolate": "monotone"
+  },
+  "encoding": {
+    "x": {"field": "month", "type": "ordinal"},
+    "y": {
+      "field": "cover",
+      "type": "quantitative",
+      "title": "Coral Cover (%)"
+    },
+    "color": {"value": "#4BC0C0"}
+  }
+}`,
+        "Interactive zoom functionality": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"month": "Jan", "cover": 45},
+      {"month": "Feb", "cover": 43},
+      {"month": "Mar", "cover": 42},
+      {"month": "Apr", "cover": 41},
+      {"month": "May", "cover": 40},
+      {"month": "Jun", "cover": 39},
+      {"month": "Jul", "cover": 38},
+      {"month": "Aug", "cover": 37},
+      {"month": "Sep", "cover": 36},
+      {"month": "Oct", "cover": 35},
+      {"month": "Nov", "cover": 34},
+      {"month": "Dec", "cover": 33}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": true
+  },
+  "encoding": {
+    "x": {"field": "month", "type": "ordinal"},
+    "y": {
+      "field": "cover",
+      "type": "quantitative",
+      "title": "Coral Cover (%)"
+    }
+  },
+  "selection": {
+    "brush": {
+      "type": "interval",
+      "encodings": ["x"]
+    }
+  }
+}`,
+        "Detailed tooltips with coral cover data": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"month": "Jan", "cover": 45},
+      {"month": "Feb", "cover": 43},
+      {"month": "Mar", "cover": 42},
+      {"month": "Apr", "cover": 41},
+      {"month": "May", "cover": 40},
+      {"month": "Jun", "cover": 39},
+      {"month": "Jul", "cover": 38},
+      {"month": "Aug", "cover": 37},
+      {"month": "Sep", "cover": 36},
+      {"month": "Oct", "cover": 35},
+      {"month": "Nov", "cover": 34},
+      {"month": "Dec", "cover": 33}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": true
+  },
+  "encoding": {
+    "x": {"field": "month", "type": "ordinal"},
+    "y": {
+      "field": "cover",
+      "type": "quantitative",
+      "title": "Coral Cover (%)"
+    },
+    "tooltip": [
+      {"field": "month", "type": "ordinal"},
+      {"field": "cover", "type": "quantitative", "format": ".1f"}
+    ]
+  }
+}`,
+        "Smooth line transitions": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"month": "Jan", "cover": 45},
+      {"month": "Feb", "cover": 43},
+      {"month": "Mar", "cover": 42},
+      {"month": "Apr", "cover": 41},
+      {"month": "May", "cover": 40},
+      {"month": "Jun", "cover": 39},
+      {"month": "Jul", "cover": 38},
+      {"month": "Aug", "cover": 37},
+      {"month": "Sep", "cover": 36},
+      {"month": "Oct", "cover": 35},
+      {"month": "Nov", "cover": 34},
+      {"month": "Dec", "cover": 33}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": true,
+    "interpolate": "basis"
+  },
+  "encoding": {
+    "x": {"field": "month", "type": "ordinal"},
+    "y": {
+      "field": "cover",
+      "type": "quantitative",
+      "title": "Coral Cover (%)"
+    }
+  }
+}`,
+      },
+      2: {
+        "Easy-to-read species distribution": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"species": "Coral", "count": 120},
+      {"species": "Fish", "count": 85},
+      {"species": "Crustaceans", "count": 65},
+      {"species": "Mollusks", "count": 45},
+      {"species": "Echinoderms", "count": 30}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "species", "type": "nominal"},
+    "y": {
+      "field": "count",
+      "type": "quantitative",
+      "title": "Species Count"
+    },
+    "color": {"field": "species", "type": "nominal"}
+  }
+}`,
+        "Interactive bar selection": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"species": "Coral", "count": 120},
+      {"species": "Fish", "count": 85},
+      {"species": "Crustaceans", "count": 65},
+      {"species": "Mollusks", "count": 45},
+      {"species": "Echinoderms", "count": 30}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "species", "type": "nominal"},
+    "y": {
+      "field": "count",
+      "type": "quantitative",
+      "title": "Species Count"
+    },
+    "color": {
+      "condition": {
+        "selection": "select",
+        "value": "#4BC0C0"
+      },
+      "value": "#999"
+    }
+  },
+  "selection": {
+    "select": {"type": "single"}
+  }
+}`,
+        "Colorful species categorization": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"species": "Coral", "count": 120},
+      {"species": "Fish", "count": 85},
+      {"species": "Crustaceans", "count": 65},
+      {"species": "Mollusks", "count": 45},
+      {"species": "Echinoderms", "count": 30}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "species", "type": "nominal"},
+    "y": {
+      "field": "count",
+      "type": "quantitative",
+      "title": "Species Count"
+    },
+    "color": {
+      "field": "species",
+      "type": "nominal",
+      "scale": {
+        "range": ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"]
+      }
+    }
+  }
+}`,
+      },
+      3: {
+        "Temperature trend visualization": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"year": "2018", "temp": 24.5},
+      {"year": "2019", "temp": 24.8},
+      {"year": "2020", "temp": 25.2},
+      {"year": "2021", "temp": 25.5},
+      {"year": "2022", "temp": 25.9},
+      {"year": "2023", "temp": 26.2},
+      {"year": "2024", "temp": 26.5}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": true
+  },
+  "encoding": {
+    "x": {"field": "year", "type": "ordinal"},
+    "y": {
+      "field": "temp",
+      "type": "quantitative",
+      "title": "Temperature (°C)"
+    }
+  }
+}`,
+        "Impact analysis in tooltips": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"year": "2018", "temp": 24.5, "impact": "Normal conditions"},
+      {"year": "2019", "temp": 24.8, "impact": "Normal conditions"},
+      {"year": "2020", "temp": 25.2, "impact": "Normal conditions"},
+      {"year": "2021", "temp": 25.5, "impact": "Moderate stress"},
+      {"year": "2022", "temp": 25.9, "impact": "Moderate stress"},
+      {"year": "2023", "temp": 26.2, "impact": "High stress"},
+      {"year": "2024", "temp": 26.5, "impact": "High stress"}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": true
+  },
+  "encoding": {
+    "x": {"field": "year", "type": "ordinal"},
+    "y": {
+      "field": "temp",
+      "type": "quantitative",
+      "title": "Temperature (°C)"
+    },
+    "tooltip": [
+      {"field": "year", "type": "ordinal"},
+      {"field": "temp", "type": "quantitative", "format": ".1f"},
+      {"field": "impact", "type": "nominal"}
+    ]
+  }
+}`,
+      },
+      4: {
+        "Comparative current vs target view": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"metric": "Biodiversity", "value": 75, "type": "Current"},
+      {"metric": "Water Quality", "value": 82, "type": "Current"},
+      {"metric": "Habitat Health", "value": 68, "type": "Current"},
+      {"metric": "Species Richness", "value": 70, "type": "Current"},
+      {"metric": "Coral Cover", "value": 65, "type": "Current"},
+      {"metric": "Biodiversity", "value": 90, "type": "Target"},
+      {"metric": "Water Quality", "value": 90, "type": "Target"},
+      {"metric": "Habitat Health", "value": 85, "type": "Target"},
+      {"metric": "Species Richness", "value": 85, "type": "Target"},
+      {"metric": "Coral Cover", "value": 80, "type": "Target"}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": true
+  },
+  "encoding": {
+    "theta": {"field": "metric", "type": "nominal"},
+    "radius": {
+      "field": "value",
+      "type": "quantitative",
+      "scale": {"domain": [0, 100]}
+    },
+    "color": {"field": "type", "type": "nominal"}
+  },
+  "view": {"stroke": null}
+}`,
+        "Interactive segment selection": `{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {"metric": "Biodiversity", "value": 75, "type": "Current"},
+      {"metric": "Water Quality", "value": 82, "type": "Current"},
+      {"metric": "Habitat Health", "value": 68, "type": "Current"},
+      {"metric": "Species Richness", "value": 70, "type": "Current"},
+      {"metric": "Coral Cover", "value": 65, "type": "Current"},
+      {"metric": "Biodiversity", "value": 90, "type": "Target"},
+      {"metric": "Water Quality", "value": 90, "type": "Target"},
+      {"metric": "Habitat Health", "value": 85, "type": "Target"},
+      {"metric": "Species Richness", "value": 85, "type": "Target"},
+      {"metric": "Coral Cover", "value": 80, "type": "Target"}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": true
+  },
+  "encoding": {
+    "theta": {"field": "metric", "type": "nominal"},
+    "radius": {
+      "field": "value",
+      "type": "quantitative",
+      "scale": {"domain": [0, 100]}
+    },
+    "color": {"field": "type", "type": "nominal"},
+    "opacity": {
+      "condition": {
+        "selection": "select",
+        "value": 1
+      },
+      "value": 0.3
+    }
+  },
+  "selection": {
+    "select": {"type": "single", "fields": ["metric"]}
+  },
+  "view": {"stroke": null}
+}`,
+      },
+    };
+
+    return likes.map((like) => codeSnippets[chartId][like]).join("\n\n");
+  };
+
+  const getAllChartCode = (chartId) => {
+    const allFeatures = {
+      1: [
+        "Clear monthly trend visualization",
+        "Interactive zoom functionality",
+        "Detailed tooltips with coral cover data",
+        "Smooth line transitions",
+      ],
+      2: [
+        "Easy-to-read species distribution",
+        "Interactive bar selection",
+        "Colorful species categorization",
+      ],
+      3: ["Temperature trend visualization", "Impact analysis in tooltips"],
+      4: [
+        "Comparative current vs target view",
+        "Interactive segment selection",
+      ],
+    };
+
+    return selectedLanguage === "python"
+      ? getPythonCode(chartId, allFeatures[chartId])
+      : selectedLanguage === "r"
+      ? getRCode(chartId, allFeatures[chartId])
+      : getVegaLiteCode(chartId, allFeatures[chartId]);
+  };
+
+  const highlightCode = (code, feature) => {
+    const featurePatterns = {
+      "Clear monthly trend visualization": {
+        python: ["plt.plot", "plt.fill_between"],
+        r: ["geom_line", "geom_area"],
+      },
+      "Interactive zoom functionality": {
+        python: ["SpanSelector", "zoom"],
+        r: ["plot_ly", "zoom"],
+      },
+      "Detailed tooltips with coral cover data": {
+        python: ["hovertemplate", "tooltip"],
+        r: ["hovertemplate", "tooltip"],
+      },
+      "Smooth line transitions": {
+        python: ["tension", "smooth"],
+        r: ["geom_smooth", "smooth"],
+      },
+      "Easy-to-read species distribution": {
+        python: ["plt.bar", "plt.title"],
+        r: ["geom_bar", "labs"],
+      },
+      "Interactive bar selection": {
+        python: ["onClick", "selected"],
+        r: ["plot_ly", "selected"],
+      },
+      "Colorful species categorization": {
+        python: ["color=", "colors="],
+        r: ["scale_fill", "scale_color"],
+      },
+      "Temperature trend visualization": {
+        python: ["plt.plot", "temperature"],
+        r: ["geom_line", "temperature"],
+      },
+      "Impact analysis in tooltips": {
+        python: ["get_impact", "impact"],
+        r: ["get_impact", "impact"],
+      },
+      "Comparative current vs target view": {
+        python: ["current", "target"],
+        r: ["current", "target"],
+      },
+      "Interactive segment selection": {
+        python: ["onClick", "selected"],
+        r: ["plot_ly", "selected"],
+      },
+    };
+
+    if (!feature || !featurePatterns[feature]) return code;
+
+    const patterns = featurePatterns[feature][selectedLanguage] || [];
+    let highlightedCode = code;
+
+    patterns.forEach((pattern) => {
+      const regex = new RegExp(pattern, "g");
+      highlightedCode = highlightedCode.replace(
+        regex,
+        (match) => `**${match}**`
+      );
+    });
+
+    return highlightedCode;
+  };
+
+  const ChartPreview = ({ chartId, likes }) => {
+    const [selectedFeature, setSelectedFeature] = useState(likes[0]);
+
+    const previewComponents = {
+      1: {
+        "Clear monthly trend visualization": (
+          <Line
+            data={coralData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+                zoom: { enabled: false },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              elements: {
+                line: {
+                  tension: 0.4,
+                },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+        "Interactive zoom functionality": (
+          <Line
+            data={coralData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+                zoom: {
+                  ...zoomOptions.zoom,
+                  drag: { enabled: true },
+                },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+        "Detailed tooltips with coral cover data": (
+          <Line
+            data={coralData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: {
+                  enabled: true,
+                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                  titleColor: "#fff",
+                  bodyColor: "#fff",
+                  borderColor: "rgba(75, 192, 192, 1)",
+                  borderWidth: 1,
+                  padding: 10,
+                  displayColors: false,
+                  callbacks: {
+                    label: function (context) {
+                      return `Coral Cover: ${context.parsed.y}%`;
+                    },
+                  },
+                },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+        "Smooth line transitions": (
+          <Line
+            data={coralData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              elements: {
+                line: {
+                  tension: 0.4,
+                },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+      },
+      2: {
+        "Easy-to-read species distribution": (
+          <Bar
+            data={speciesData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+        "Interactive bar selection": (
+          <Bar
+            data={speciesData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              onClick: (event, elements) => {
+                if (elements.length > 0) {
+                  const index = elements[0].index;
+                  setSelectedSpecies(speciesData.labels[index]);
+                }
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+        "Colorful species categorization": (
+          <Bar
+            data={speciesData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+      },
+      3: {
+        "Temperature trend visualization": (
+          <Line
+            data={temperatureData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+        "Impact analysis in tooltips": (
+          <Line
+            data={temperatureData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: {
+                  enabled: true,
+                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                  titleColor: "#fff",
+                  bodyColor: "#fff",
+                  borderColor: "rgba(75, 192, 192, 1)",
+                  borderWidth: 1,
+                  padding: 10,
+                  callbacks: {
+                    label: function (context) {
+                      const temp = context.parsed.y;
+                      let impact = "";
+                      if (temp > 26) impact = "High stress on coral reefs";
+                      else if (temp > 25.5)
+                        impact = "Moderate stress on marine life";
+                      else impact = "Normal conditions";
+                      return [`Temperature: ${temp}°C`, `Impact: ${impact}`];
+                    },
+                  },
+                },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+      },
+      4: {
+        "Comparative current vs target view": (
+          <Radar
+            data={ecosystemData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+              },
+              scales: {
+                r: { display: false },
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+        "Interactive segment selection": (
+          <Radar
+            data={ecosystemData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: false },
+                tooltip: { enabled: false },
+              },
+              scales: {
+                r: { display: false },
+              },
+              onClick: (event, elements) => {
+                if (elements.length > 0) {
+                  const index = elements[0].index;
+                  setEcosystemFocus(ecosystemData.labels[index]);
+                }
+              },
+              animation: { duration: 0 },
+            }}
+          />
+        ),
+      },
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-2 mb-4">
+          {likes.map((feature) => (
+            <button
+              key={feature}
+              onClick={() => setSelectedFeature(feature)}
+              className={`px-3 py-1 rounded text-sm transition-colors ${
+                feature === selectedFeature
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {feature}
+            </button>
+          ))}
+        </div>
+        <div className="h-48">
+          {previewComponents[chartId][selectedFeature]}
+        </div>
+      </div>
+    );
+  };
+
+  const CodeGenerator = () => {
+    const [showCode, setShowCode] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState("python");
+
+    if (selectedCharts.length === 0) return null;
+
+    const selectedChartsWithLikes = selectedCharts.map((chartId) => {
+      const likes = chartLikes[chartId] || [];
+      const allFeatures = {
+        1: [
+          "Clear monthly trend visualization",
+          "Interactive zoom functionality",
+          "Detailed tooltips with coral cover data",
+          "Smooth line transitions",
+        ],
+        2: [
+          "Easy-to-read species distribution",
+          "Interactive bar selection",
+          "Colorful species categorization",
+        ],
+        3: ["Temperature trend visualization", "Impact analysis in tooltips"],
+        4: [
+          "Comparative current vs target view",
+          "Interactive segment selection",
+        ],
+      };
+
+      return {
+        id: chartId,
+        likes: likes.length > 0 ? likes : allFeatures[chartId],
+      };
+    });
+
+    const copyToClipboard = (text) => {
+      navigator.clipboard.writeText(text);
+    };
+
+    return (
+      <div className="mt-8 p-6 bg-gray-50 rounded-lg">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center space-x-4">
+            <h3 className="text-lg font-semibold text-gray-800">Remix in</h3>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setSelectedLanguage("python")}
+                className={`px-4 py-2 rounded transition-colors ${
+                  selectedLanguage === "python"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Python
+              </button>
+              <button
+                onClick={() => setSelectedLanguage("r")}
+                className={`px-4 py-2 rounded transition-colors ${
+                  selectedLanguage === "r"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                R
+              </button>
+              <button
+                onClick={() => setSelectedLanguage("vega-lite")}
+                className={`px-4 py-2 rounded transition-colors ${
+                  selectedLanguage === "vega-lite"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Vega-Lite
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowCode(!showCode)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            {showCode ? "Hide Code" : "Show Code"}
+          </button>
+        </div>
+
+        {showCode && (
+          <div className="space-y-8">
+            {selectedChartsWithLikes.map(({ id, likes }) => (
+              <div key={id} className="bg-white p-6 rounded-lg shadow">
+                <h4 className="text-lg font-medium text-gray-700 mb-4">
+                  {charts.find((c) => c.id === id).title}
+                </h4>
+                <div className="mb-4">
+                  <h5 className="text-sm font-medium text-gray-600 mb-2">
+                    Selected Features:
+                  </h5>
+                  <div className="flex flex-wrap gap-2">
+                    {likes.map((feature) => (
+                      <span
+                        key={feature}
+                        className="px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm"
+                      >
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h5 className="text-sm font-medium text-gray-600">
+                        {selectedLanguage === "python"
+                          ? "Python"
+                          : selectedLanguage === "r"
+                          ? "R"
+                          : "Vega-Lite"}{" "}
+                        Code
+                      </h5>
+                      <button
+                        onClick={() =>
+                          copyToClipboard(
+                            selectedLanguage === "python"
+                              ? getPythonCode(id, likes)
+                              : selectedLanguage === "r"
+                              ? getRCode(id, likes)
+                              : getVegaLiteCode(id, likes)
+                          )
+                        }
+                        className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                      >
+                        Copy Code
+                      </button>
+                    </div>
+                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                      <code>
+                        {selectedLanguage === "python"
+                          ? getPythonCode(id, likes)
+                          : selectedLanguage === "r"
+                          ? getRCode(id, likes)
+                          : getVegaLiteCode(id, likes)}
+                      </code>
+                    </pre>
+                  </div>
+                  <div className="space-y-4">
+                    <h5 className="text-sm font-medium text-gray-600">
+                      Chart Preview
+                    </h5>
+                    <ChartPreview chartId={id} likes={likes} />
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h5 className="text-sm font-medium text-gray-600 mb-2">
+                    Required Dependencies
+                  </h5>
+                  <pre className="bg-gray-100 p-2 rounded text-sm">
+                    <code>
+                      {selectedLanguage === "python"
+                        ? "pip install matplotlib numpy plotly seaborn scipy"
+                        : selectedLanguage === "r"
+                        ? 'install.packages(c("ggplot2", "plotly", "fmsb"))'
+                        : "npm install vega-lite vega-embed"}
+                    </code>
+                  </pre>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        {selectedCharts.length > 0 && (
+          <button
+            onClick={() => {
+              setSelectedCharts([]);
+              setChartLikes({
+                1: [],
+                2: [],
+                3: [],
+                4: [],
+              });
+            }}
+            className="fixed top-4 right-4 z-50 px-4 py-2 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>Clear All</span>
+          </button>
+        )}
         <h1 className="text-4xl font-bold text-center text-gray-900 mb-8">
           Marine Biology Data Visualization
         </h1>
@@ -933,6 +2241,7 @@ function App() {
             </div>
           ))}
         </div>
+        <CodeGenerator />
       </div>
     </div>
   );
