@@ -442,6 +442,168 @@ function App() {
     </div>
   );
 
+  // Add function to get annotation options based on preferences
+  const getChartAnnotations = (chartId) => {
+    const likes = chartLikes[chartId];
+    const annotations = {};
+
+    switch (chartId) {
+      case 1: // Coral Reef Chart
+        if (likes.includes("Clear monthly trend visualization")) {
+          annotations.trend = {
+            type: "line",
+            yMin: 33,
+            yMax: 45,
+            borderColor: "rgba(75, 192, 192, 0.5)",
+            borderWidth: 2,
+            borderDash: [5, 5],
+            label: {
+              content: "Trend",
+              enabled: true,
+              position: "start",
+            },
+          };
+        }
+        if (likes.includes("Interactive zoom functionality")) {
+          annotations.zoom = {
+            type: "box",
+            xMin: 0,
+            xMax: 11,
+            yMin: 30,
+            yMax: 50,
+            backgroundColor: "rgba(75, 192, 192, 0.1)",
+            borderColor: "rgba(75, 192, 192, 0.3)",
+            borderWidth: 1,
+            label: {
+              content: "Zoom Area",
+              enabled: true,
+              position: "start",
+            },
+          };
+        }
+        break;
+
+      case 2: // Species Diversity Chart
+        if (likes.includes("Colorful species categorization")) {
+          annotations.colors = {
+            type: "box",
+            xMin: -0.5,
+            xMax: 4.5,
+            yMin: 0,
+            yMax: 120,
+            backgroundColor: "rgba(255, 99, 132, 0.1)",
+            borderColor: "rgba(255, 99, 132, 0.3)",
+            borderWidth: 1,
+            label: {
+              content: "Species Categories",
+              enabled: true,
+              position: "start",
+            },
+          };
+        }
+        if (likes.includes("Interactive bar selection")) {
+          annotations.selection = {
+            type: "box",
+            xMin: selectedSpecies
+              ? speciesData.labels.indexOf(selectedSpecies) - 0.3
+              : -0.5,
+            xMax: selectedSpecies
+              ? speciesData.labels.indexOf(selectedSpecies) + 0.3
+              : 4.5,
+            yMin: 0,
+            yMax: 120,
+            backgroundColor: "rgba(54, 162, 235, 0.1)",
+            borderColor: "rgba(54, 162, 235, 0.3)",
+            borderWidth: 1,
+            label: {
+              content: "Selection Area",
+              enabled: true,
+              position: "start",
+            },
+          };
+        }
+        break;
+
+      case 3: // Temperature Trends Chart
+        if (likes.includes("Temperature trend visualization")) {
+          annotations.trend = {
+            type: "line",
+            yMin: 24.5,
+            yMax: 26.5,
+            borderColor: "rgba(75, 192, 192, 0.5)",
+            borderWidth: 2,
+            borderDash: [5, 5],
+            label: {
+              content: "Temperature Trend",
+              enabled: true,
+              position: "start",
+            },
+          };
+        }
+        if (likes.includes("Impact analysis in tooltips")) {
+          annotations.impact = {
+            type: "box",
+            xMin: 0,
+            xMax: 6,
+            yMin: 24,
+            yMax: 27,
+            backgroundColor: "rgba(75, 192, 192, 0.1)",
+            borderColor: "rgba(75, 192, 192, 0.3)",
+            borderWidth: 1,
+            label: {
+              content: "Impact Analysis Area",
+              enabled: true,
+              position: "start",
+            },
+          };
+        }
+        break;
+
+      case 4: // Ecosystem Health Chart
+        if (likes.includes("Comparative current vs target view")) {
+          annotations.comparison = {
+            type: "box",
+            xMin: -0.5,
+            xMax: 4.5,
+            yMin: 60,
+            yMax: 95,
+            backgroundColor: "rgba(255, 99, 132, 0.1)",
+            borderColor: "rgba(255, 99, 132, 0.3)",
+            borderWidth: 1,
+            label: {
+              content: "Comparison Area",
+              enabled: true,
+              position: "start",
+            },
+          };
+        }
+        if (likes.includes("Interactive segment selection")) {
+          annotations.selection = {
+            type: "box",
+            xMin: ecosystemFocus
+              ? ecosystemData.labels.indexOf(ecosystemFocus) - 0.3
+              : -0.5,
+            xMax: ecosystemFocus
+              ? ecosystemData.labels.indexOf(ecosystemFocus) + 0.3
+              : 4.5,
+            yMin: 60,
+            yMax: 95,
+            backgroundColor: "rgba(54, 162, 235, 0.1)",
+            borderColor: "rgba(54, 162, 235, 0.3)",
+            borderWidth: 1,
+            label: {
+              content: "Selection Area",
+              enabled: true,
+              position: "start",
+            },
+          };
+        }
+        break;
+    }
+
+    return annotations;
+  };
+
   const charts = [
     {
       id: 1,
@@ -489,6 +651,9 @@ function App() {
                       setCoralZoomLevel(coralChartRef.current.getZoomLevel());
                     }
                   },
+                },
+                annotation: {
+                  annotations: getChartAnnotations(1),
                 },
               },
               animation: {
@@ -541,6 +706,9 @@ function App() {
                       return `Count: ${context.parsed.y} species`;
                     },
                   },
+                },
+                annotation: {
+                  annotations: getChartAnnotations(2),
                 },
               },
               onClick: (event, elements) => {
@@ -624,6 +792,9 @@ function App() {
                     }
                   },
                 },
+                annotation: {
+                  annotations: getChartAnnotations(3),
+                },
               },
               animation: {
                 duration: 2000,
@@ -688,6 +859,9 @@ function App() {
                       ];
                     },
                   },
+                },
+                annotation: {
+                  annotations: getChartAnnotations(4),
                 },
               },
               onClick: (event, elements) => {
