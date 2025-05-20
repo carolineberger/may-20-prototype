@@ -13,7 +13,7 @@ import {
   Filler,
 } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -60,26 +60,41 @@ const zoomOptions = {
 function App() {
   const dnaChartRef = useRef(null);
   const cellGrowthChartRef = useRef(null);
+  const [dnaZoomLevel, setDnaZoomLevel] = useState(1);
+  const [cellGrowthZoomLevel, setCellGrowthZoomLevel] = useState(1);
 
-  const resetZoom = (chartRef) => {
+  const resetZoom = (chartRef, setZoomLevel) => {
     if (chartRef.current) {
       chartRef.current.resetZoom();
+      setZoomLevel(1);
     }
   };
 
-  const zoomIn = (chartRef) => {
+  const zoomIn = (chartRef, setZoomLevel) => {
     if (chartRef.current) {
       const chart = chartRef.current;
-      const currentZoom = chart.getZoomLevel();
+      const newZoom = Math.min(5, chart.getZoomLevel() * 1.5);
       chart.zoom(1.5);
+      setZoomLevel(newZoom);
     }
   };
 
-  const zoomOut = (chartRef) => {
+  const zoomOut = (chartRef, setZoomLevel) => {
+    if (chartRef.current) {
+      const chart = chartRef.current;
+      const newZoom = Math.max(0.5, chart.getZoomLevel() * 0.75);
+      chart.zoom(0.75);
+      setZoomLevel(newZoom);
+    }
+  };
+
+  const handleSliderChange = (chartRef, setZoomLevel, value) => {
     if (chartRef.current) {
       const chart = chartRef.current;
       const currentZoom = chart.getZoomLevel();
-      chart.zoom(0.75);
+      const zoomFactor = value / currentZoom;
+      chart.zoom(zoomFactor);
+      setZoomLevel(value);
     }
   };
 
@@ -158,26 +173,48 @@ function App() {
     ],
   };
 
-  const ZoomControls = ({ chartRef }) => (
-    <div className="flex gap-2 mt-2">
-      <button
-        onClick={() => zoomIn(chartRef)}
-        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-      >
-        Zoom In
-      </button>
-      <button
-        onClick={() => zoomOut(chartRef)}
-        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-      >
-        Zoom Out
-      </button>
-      <button
-        onClick={() => resetZoom(chartRef)}
-        className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-      >
-        Reset Zoom
-      </button>
+  const ZoomControls = ({ chartRef, zoomLevel, setZoomLevel }) => (
+    <div className="mt-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 flex-1">
+          <button
+            onClick={() => zoomOut(chartRef, setZoomLevel)}
+            className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded"
+          >
+            −
+          </button>
+          <input
+            type="range"
+            min="0.5"
+            max="5"
+            step="0.1"
+            value={zoomLevel}
+            onChange={(e) =>
+              handleSliderChange(
+                chartRef,
+                setZoomLevel,
+                parseFloat(e.target.value)
+              )
+            }
+            className="flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          />
+          <button
+            onClick={() => zoomIn(chartRef, setZoomLevel)}
+            className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded"
+          >
+            +
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">{zoomLevel.toFixed(1)}x</span>
+          <button
+            onClick={() => resetZoom(chartRef, setZoomLevel)}
+            className="text-xs text-gray-500 hover:text-gray-700"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
     </div>
   );
 
@@ -202,11 +239,22 @@ function App() {
                   display: true,
                   text: "DNA Base Pair Distribution",
                 },
-                zoom: zoomOptions,
+                zoom: {
+                  ...zoomOptions.zoom,
+                  onZoom: () => {
+                    if (dnaChartRef.current) {
+                      setDnaZoomLevel(dnaChartRef.current.getZoomLevel());
+                    }
+                  },
+                },
               },
             }}
           />
-          <ZoomControls chartRef={dnaChartRef} />
+          <ZoomControls
+            chartRef={dnaChartRef}
+            zoomLevel={dnaZoomLevel}
+            setZoomLevel={setDnaZoomLevel}
+          />
         </div>
       ),
     },
@@ -252,11 +300,24 @@ function App() {
                   display: true,
                   text: "Cell Growth Over Time",
                 },
-                zoom: zoomOptions,
+                zoom: {
+                  ...zoomOptions.zoom,
+                  onZoom: () => {
+                    if (cellGrowthChartRef.current) {
+                      setCellGrowthZoomLevel(
+                        cellGrowthChartRef.current.getZoomLevel()
+                      );
+                    }
+                  },
+                },
               },
             }}
           />
-          <ZoomControls chartRef={cellGrowthChartRef} />
+          <ZoomControls
+            chartRef={cellGrowthChartRef}
+            zoomLevel={cellGrowthZoomLevel}
+            setZoomLevel={setCellGrowthZoomLevel}
+          />
         </div>
       ),
     },
