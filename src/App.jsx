@@ -782,19 +782,10 @@ function App() {
                     },
                   },
                 },
-                zoom: {
-                  ...zoomOptions.zoom,
-                  onZoom: () => {
-                    if (speciesChartRef.current) {
-                      setSpeciesZoomLevel(
-                        speciesChartRef.current.getZoomLevel()
-                      );
-                    }
-                  },
-                },
-                annotation: {
-                  annotations: getChartAnnotations(3),
-                },
+              },
+              scales: {
+                y: { display: false },
+                x: { display: false },
               },
               animation: {
                 duration: 2000,
@@ -2011,7 +2002,7 @@ plot_ly(type = 'scatterpolar',
 
   const CodeGenerator = () => {
     const [showCode, setShowCode] = useState(false);
-    const [selectedLanguage, setSelectedLanguage] = useState("python");
+    const [selectedLanguages, setSelectedLanguages] = useState(["python"]);
 
     if (selectedCharts.length === 0) return null;
 
@@ -2046,6 +2037,31 @@ plot_ly(type = 'scatterpolar',
       navigator.clipboard.writeText(text);
     };
 
+    const toggleLanguage = (language) => {
+      setSelectedLanguages((prev) => {
+        if (prev.includes(language)) {
+          // Don't remove if it's the last selected language
+          if (prev.length === 1) return prev;
+          return prev.filter((lang) => lang !== language);
+        }
+        return [...prev, language];
+      });
+    };
+
+    const getDependencies = () => {
+      const deps = new Set();
+      if (selectedLanguages.includes("python")) {
+        deps.add("pip install matplotlib numpy plotly seaborn scipy");
+      }
+      if (selectedLanguages.includes("r")) {
+        deps.add('install.packages(c("ggplot2", "plotly", "fmsb"))');
+      }
+      if (selectedLanguages.includes("vega-lite")) {
+        deps.add("npm install vega-lite vega-embed");
+      }
+      return Array.from(deps);
+    };
+
     return (
       <div className="mt-8 p-6 bg-gray-50 rounded-lg">
         <div className="flex justify-between items-center mb-4">
@@ -2053,9 +2069,9 @@ plot_ly(type = 'scatterpolar',
             <h3 className="text-lg font-semibold text-gray-800">Remix in</h3>
             <div className="flex space-x-2">
               <button
-                onClick={() => setSelectedLanguage("python")}
+                onClick={() => toggleLanguage("python")}
                 className={`px-4 py-2 rounded transition-colors ${
-                  selectedLanguage === "python"
+                  selectedLanguages.includes("python")
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
@@ -2063,9 +2079,9 @@ plot_ly(type = 'scatterpolar',
                 Python
               </button>
               <button
-                onClick={() => setSelectedLanguage("r")}
+                onClick={() => toggleLanguage("r")}
                 className={`px-4 py-2 rounded transition-colors ${
-                  selectedLanguage === "r"
+                  selectedLanguages.includes("r")
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
@@ -2073,9 +2089,9 @@ plot_ly(type = 'scatterpolar',
                 R
               </button>
               <button
-                onClick={() => setSelectedLanguage("vega-lite")}
+                onClick={() => toggleLanguage("vega-lite")}
                 className={`px-4 py-2 rounded transition-colors ${
-                  selectedLanguage === "vega-lite"
+                  selectedLanguages.includes("vega-lite")
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
@@ -2116,39 +2132,43 @@ plot_ly(type = 'scatterpolar',
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h5 className="text-sm font-medium text-gray-600">
-                        {selectedLanguage === "python"
-                          ? "Python"
-                          : selectedLanguage === "r"
-                          ? "R"
-                          : "Vega-Lite"}{" "}
-                        Code
-                      </h5>
-                      <button
-                        onClick={() =>
-                          copyToClipboard(
-                            selectedLanguage === "python"
+                    {selectedLanguages.map((language) => (
+                      <div key={language} className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <h5 className="text-sm font-medium text-gray-600">
+                            {language === "python"
+                              ? "Python"
+                              : language === "r"
+                              ? "R"
+                              : "Vega-Lite"}{" "}
+                            Code
+                          </h5>
+                          <button
+                            onClick={() =>
+                              copyToClipboard(
+                                language === "python"
+                                  ? getPythonCode(id, likes)
+                                  : language === "r"
+                                  ? getRCode(id, likes)
+                                  : getVegaLiteCode(id, likes)
+                              )
+                            }
+                            className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                          >
+                            Copy Code
+                          </button>
+                        </div>
+                        <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                          <code>
+                            {language === "python"
                               ? getPythonCode(id, likes)
-                              : selectedLanguage === "r"
+                              : language === "r"
                               ? getRCode(id, likes)
-                              : getVegaLiteCode(id, likes)
-                          )
-                        }
-                        className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
-                      >
-                        Copy Code
-                      </button>
-                    </div>
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto">
-                      <code>
-                        {selectedLanguage === "python"
-                          ? getPythonCode(id, likes)
-                          : selectedLanguage === "r"
-                          ? getRCode(id, likes)
-                          : getVegaLiteCode(id, likes)}
-                      </code>
-                    </pre>
+                              : getVegaLiteCode(id, likes)}
+                          </code>
+                        </pre>
+                      </div>
+                    ))}
                   </div>
                   <div className="space-y-4">
                     <h5 className="text-sm font-medium text-gray-600">
@@ -2161,15 +2181,16 @@ plot_ly(type = 'scatterpolar',
                   <h5 className="text-sm font-medium text-gray-600 mb-2">
                     Required Dependencies
                   </h5>
-                  <pre className="bg-gray-100 p-2 rounded text-sm">
-                    <code>
-                      {selectedLanguage === "python"
-                        ? "pip install matplotlib numpy plotly seaborn scipy"
-                        : selectedLanguage === "r"
-                        ? 'install.packages(c("ggplot2", "plotly", "fmsb"))'
-                        : "npm install vega-lite vega-embed"}
-                    </code>
-                  </pre>
+                  <div className="space-y-2">
+                    {getDependencies().map((dep, index) => (
+                      <pre
+                        key={index}
+                        className="bg-gray-100 p-2 rounded text-sm"
+                      >
+                        <code>{dep}</code>
+                      </pre>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
