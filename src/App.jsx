@@ -711,6 +711,7 @@ function App() {
       typeof chartId
     );
     console.log("chartLikes for this chart:", chartLikes[chartId]);
+    // Updated checkbox implementation - working version
     return (
       <div className="mt-4 p-4 bg-gray-50 rounded-lg">
         <h4 className="text-sm font-medium text-gray-700 mb-2">
